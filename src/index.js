@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './components/App';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 import reducers from './reducers';
 import { Provider } from 'react-redux';
