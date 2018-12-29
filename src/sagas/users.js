@@ -1,4 +1,4 @@
-import { takeEvery, takeLatest, call, fork, put } from 'redux-saga/effects';
+import { takeEvery, takeLatest, take, call, fork, put } from 'redux-saga/effects';
 import * as actions from '../actions/users'
 import * as api from '../api/users';
 
@@ -31,9 +31,33 @@ function* watchCreateUsersRequest() {
   yield takeLatest(actions.Types.CREATE_USER_REQUEST, createUser);
 }
 
+function* deleteUser({ userId }) {
+  try {
+    yield call(api.deleteUser, userId);
+    yield call(getUsers);
+  } catch (error) {
+    console.log('error comming from saga', error)
+  }
+}
+
+function* watchDeleteUserRequest() {
+  while (true) {
+    // take provides the action which was dispatched
+    // is a low level effects from saga (compared with takeLatest or takeEvery)
+    const action = yield take(actions.Types.DELETE_USER_REQUEST);
+    yield call(deleteUser, {
+      userId: action.payload.userId
+    })
+  }
+  // wrapping the watcher in a while loop, we avoid to get in in the function
+  // again till the sagas is resolved (we are blocking to delete other users
+  // till one user is deleted)
+}
+
 const usersSagas = [
   fork(watchGetUsersRequest),
-  fork(watchCreateUsersRequest)
+  fork(watchCreateUsersRequest),
+  fork(watchDeleteUserRequest)
 ]
 
 export default usersSagas;
