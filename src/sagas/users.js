@@ -5,12 +5,13 @@ import * as api from '../api/users';
 function* getUsers() { // this is a worker
   try {
     const result = yield call(api.getUsers);
-    console.log('result comming from saga', result.data.data)
     yield put(actions.getUsersSuccess({
       items: result.data.data
     }))
   } catch (error) {
-    console.log('error comming from saga', error)
+    yield put(actions.usersError({
+      error: ' An error occurred when trying to get the users'
+    }))
   }
 }
 
@@ -23,7 +24,9 @@ function* createUser(action) {
     yield call(api.createUser, { firstName: action.payload.firstName, lastName: action.payload.lastName });
     yield call(getUsers)
   } catch (error) {
-    console.log('error comming from saga', error)
+    yield put(actions.usersError({
+      error: ' An error occurred when trying to create the user'
+    }))
   }
 }
 
@@ -36,7 +39,9 @@ function* deleteUser({ userId }) {
     yield call(api.deleteUser, userId);
     yield call(getUsers);
   } catch (error) {
-    console.log('error comming from saga', error)
+    yield put(actions.usersError({
+      error: ' An error occurred when trying to delete the user'
+    }))
   }
 }
 
